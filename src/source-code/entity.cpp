@@ -228,4 +228,12 @@ void Clue::SetClueType(string type, string question, string odgovor1){
     answers=answer1;
 }
 
+void Entity::setPrevX(float x1){
+    prevX = x1;
+}
+
+void Entity::setPrevY(float y1){
+    prevY = y1;
+}
+
 

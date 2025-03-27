@@ -27,6 +27,8 @@ public:
     bool const Alive() ; // Mark as const for read-only access
     float const getPrevX();
     float const getPrevY();
+    void setPrevX(float x1);
+    void setPrevY(float y1);
 
 protected:
     float prevX,prevY;

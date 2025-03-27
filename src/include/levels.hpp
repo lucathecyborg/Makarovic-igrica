@@ -72,7 +72,8 @@ public:
     SDL_Rect &getgateRect();
     void loadPlayer(Entity &x);
     Player &getPlayer(){return player1;};
-
+    void saveToFile(const std::string& filename);
+    int loadFromFile(const std::string& filename, Render &window);
 
 
 };

@@ -16,6 +16,11 @@
 
 
 
+
+
+
+
+
 Player Level::player1 = Player();
 
 
@@ -388,6 +393,115 @@ void Level::loadPlayer(Entity &x){
 vector<Clue>& Level::getClues()
 {
     return clues;
+}
+
+int Level::loadFromFile(const std::string& filename, Render &window) {
+    SDL_Texture* skins[3];
+    skins[0] = window.loadTexture("src/res/gfx/ppl_textures/desert enemy/idle.png");
+    skins[1] = window.loadTexture("src/res/gfx/ppl_textures/forest enemy/idle.png");
+    skins[2] = window.loadTexture("src/res/gfx/ppl_textures/city enemy/idle.png");
+
+    std::ifstream inFile("level.bin", std::ios::binary);
+    if (!inFile) {
+        std::cerr << "Error opening file for reading!" << std::endl;
+        return -1;
+    }
+
+    // Read the level number
+    inFile.read(reinterpret_cast<char*>(&levelNumber), sizeof(levelNumber));
+
+    // Read clue states
+    size_t clueSize;
+    inFile.read(reinterpret_cast<char*>(&clueSize), sizeof(clueSize));
+
+    std::vector<uint8_t> clueData(clueSize);
+    inFile.read(reinterpret_cast<char*>(clueData.data()), clueSize);
+
+    std::vector<bool> clueStates(clueSize);
+    for (size_t i = 0; i < clueSize; i++) {
+        clueStates[i] = (clueData[i] != 0); // Convert byte to bool
+    }
+
+    // Read enemy alive states
+    size_t enemySize;
+    inFile.read(reinterpret_cast<char*>(&enemySize), sizeof(enemySize));
+
+    std::vector<uint8_t> enemyData(enemySize);
+    inFile.read(reinterpret_cast<char*>(enemyData.data()), enemySize);
+
+    std::vector<bool> enemyStates(enemySize);
+    for (size_t i = 0; i < enemySize; i++) {
+        enemyStates[i] = (enemyData[i] != 0); // Convert byte to bool
+    }
+
+    // Read player health
+    int helt;
+    inFile.read(reinterpret_cast<char*>(&helt), sizeof(helt));
+    player1.setHealth(helt);
+
+    inFile.close();
+
+    // Apply loaded data
+    for (size_t i = 0; i < clues.size() && i < clueStates.size(); i++) {
+        clues[i].setAlive(clueStates[i]);
+    }
+
+    for (size_t i = 0; i < enemies.size() && i < enemyStates.size(); i++) {
+        enemies[i].setAlive(enemyStates[i]);
+    }
+
+    return levelNumber;
+}
+
+
+
+
+
+
+void Level::saveToFile(const std::string& filename) {
+    std::ofstream outFile("level.bin", std::ios::binary);
+    if (!outFile) {
+        std::cerr << "Error opening file for writing!" << std::endl;
+        return;
+    }
+
+    // Save the level number
+    outFile.write(reinterpret_cast<const char*>(&levelNumber), sizeof(levelNumber));
+
+    // Save the clue data
+    std::vector<bool> clueStates;
+    for (size_t i = 0; i < clues.size(); i++) {
+        clueStates.push_back(clues[i].Alive());
+    }
+    size_t clueSize = clueStates.size();
+    outFile.write(reinterpret_cast<const char*>(&clueSize), sizeof(clueSize));
+
+    std::vector<uint8_t> clueData(clueSize);
+    for (size_t i = 0; i < clueSize; i++) {
+        clueData[i] = clueStates[i] ? 1 : 0; // Convert bool to byte
+    }
+    outFile.write(reinterpret_cast<const char*>(clueData.data()), clueSize);
+
+    // Save the enemy alive states
+    std::vector<bool> enemyStates;
+    for (size_t i = 0; i < enemies.size(); i++) {
+        enemyStates.push_back(enemies[i].Alive());
+    }
+    size_t enemySize = enemyStates.size();
+    outFile.write(reinterpret_cast<const char*>(&enemySize), sizeof(enemySize));
+
+    std::vector<uint8_t> enemyData(enemySize);
+    for (size_t i = 0; i < enemySize; i++) {
+        enemyData[i] = enemyStates[i] ? 1 : 0; // Convert bool to byte
+    }
+    outFile.write(reinterpret_cast<const char*>(enemyData.data()), enemySize);
+
+    // Save player health
+    int helt = player1.getHealth();
+    outFile.write(reinterpret_cast<const char*>(&helt), sizeof(helt));
+
+    outFile.close();
+    std::cout << "Level saved successfully!" << std::endl;
 }
 
 
