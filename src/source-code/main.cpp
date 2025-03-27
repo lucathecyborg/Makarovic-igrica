@@ -61,7 +61,7 @@ int main(int argc, char *args[])
     Level levels[3] = {Level(1, 4668, 2626, 1, 5, window, map1Tex, startup1, gateClosed, gateOpen), Level(2, 6966, 3918, 2, 10, window, map2Tex, startup2, gateClosed, gateOpen), Level(3, 9422, 5299, 3, 0, window, map3Tex, startup1, gateClosed, gateOpen)};
     levels[0].loadPlayer(player);
     int level_counter = 0;
-    level_counter = menu(window, levels, level_counter); // Use the returned levelNumber
+    level_counter = menu(window, levels, level_counter); // Use the updated menu function
     std::cout << level_counter << std::endl;
     bool gameRunning = true;
   
@@ -151,9 +151,10 @@ int main(int argc, char *args[])
         bool moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
         int tempCount=level_counter;
         bool input = inputHandling(event, gameRunning, levels[level_counter].getPlayer(), player_Walking_Forward, player_Walking_Backward, punch, window, moveUp, moveDown, moveLeft, moveRight, levels, level_counter);
-        if(tempCount!=level_counter){
-            playersetup1 = playerSetup(player, levels[level_counter].getTex(), window, levels[level_counter].getSrcRect(), player_Walking_Backward, levels[level_counter], modifier);
-        }
+        std::cout<<tempCount<<"  "<<level_counter<<std::endl;
+        if(tempCount!=level_counter)
+                goto setup;
+    
         tempRect = playerRect;
 
         // MOVEMENT ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -319,6 +320,8 @@ int main(int argc, char *args[])
                 }
                 else
                 {
+                    setup:
+                    std::cout << "Level: " << level_counter << std::endl;
                     playersetup1 = playerSetup(player, levels[level_counter].getTex(), window, levels[level_counter].getSrcRect(), player_Walking_Backward, levels[level_counter], modifier);
                     player.setTex(player_Walking_Forward[0]);
                     player.Move(960, 540);

@@ -13,7 +13,7 @@
 #include "button.hpp"
 #include "menu.hpp"
 
-bool menu(Render &window, Level levels[], int levelNumber){
+int menu(Render &window, Level levels[], int &levelNumber) { // Pass levelNumber by reference
     //writeText(window);
     string names[3]={"level1","level2","level3"};
     bool menu = true;
@@ -45,15 +45,15 @@ bool menu(Render &window, Level levels[], int levelNumber){
                     {
                         menu = false;
                         Quit(window);
-                        return false;
+                        return levelNumber; // Return the current levelNumber
                     }
                     else if (SDL_HasIntersection(&mouseRect, creditsButton.getHitbox()))
                     {
-                        menu = credits(window);
+                        credits(window);
                     }
                     else if (SDL_HasIntersection(&mouseRect, optionsButton.getHitbox()))
                     {
-                        menu = options(window);
+                        options(window);
                     }
                     else if (SDL_HasIntersection(&mouseRect, saveButon.getHitbox()))
                     {
@@ -62,9 +62,10 @@ bool menu(Render &window, Level levels[], int levelNumber){
 
 // Load logic
                     else if (SDL_HasIntersection(&mouseRect, loadButon.getHitbox()))
-                    {
-                        levelNumber = levels[levelNumber].loadFromFile(names[levelNumber], window);
-                        menu = false; // Exit the menu after loading
+                    {   levelNumber=levels[levelNumber].numberCheck()-1;
+                        std::cout<<levelNumber<<std::endl;
+                        levels[levelNumber].loadFromFile(names[levelNumber], window);
+                       // Exit the menu after loading
                     }
                 }
             }
@@ -73,7 +74,7 @@ bool menu(Render &window, Level levels[], int levelNumber){
 
                 menu = false;
                 Quit(window);
-                return false;
+                return levelNumber; // Return the current levelNumber
             }
             if (event.type == SDL_KEYUP)
             {
@@ -90,7 +91,7 @@ bool menu(Render &window, Level levels[], int levelNumber){
     return levelNumber; // Return the updated levelNumber
 }
 
-bool credits(Render &window)
+void credits(Render &window)
 {
   
     bool credits = true;
@@ -126,10 +127,10 @@ bool credits(Render &window)
         window.renderTexture(creditsTex, {0, 0, 1920, 1080}, {0, 0, 1920, 1080});
         window.display();
     }
-    return true;
+    
 }
 
-bool options(Render &window)
+void options(Render &window)
 {
     bool options = true;
     SDL_Event event;
@@ -185,7 +186,7 @@ bool options(Render &window)
         window.renderTexture(optionsTex, {0, 0, 1920, 1080}, {0, 0, 1920, 1080});
         window.display();
     }
-    return true;
+    
 }
 
 

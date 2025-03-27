@@ -395,7 +395,7 @@ vector<Clue>& Level::getClues()
     return clues;
 }
 
-int Level::loadFromFile(const std::string& filename, Render &window) {
+void Level::loadFromFile(const std::string& filename, Render &window) {
     SDL_Texture* skins[3];
     skins[0] = window.loadTexture("src/res/gfx/ppl_textures/desert enemy/idle.png");
     skins[1] = window.loadTexture("src/res/gfx/ppl_textures/forest enemy/idle.png");
@@ -404,7 +404,7 @@ int Level::loadFromFile(const std::string& filename, Render &window) {
     std::ifstream inFile("level.bin", std::ios::binary);
     if (!inFile) {
         std::cerr << "Error opening file for reading!" << std::endl;
-        return -1;
+        return;
     }
 
     // Read the level number
@@ -450,7 +450,7 @@ int Level::loadFromFile(const std::string& filename, Render &window) {
         enemies[i].setAlive(enemyStates[i]);
     }
 
-    return levelNumber;
+   
 }
 
 
@@ -505,17 +505,21 @@ void Level::saveToFile(const std::string& filename) {
 }
 
 
-int Level::numberCheck(){
+int Level::numberCheck() {
     std::ifstream inFile("level.bin", std::ios::binary);
     if (!inFile) {
         std::cerr << "Error opening file for reading!" << std::endl;
         return -1;
     }
 
-    // Read the level number
-    
-    inFile.read(reinterpret_cast<char*>(&levelNumber), sizeof(levelNumber));
-    return levelNumber;
+    // Read the level number into a temporary variable
+    int tempLevelNumber;
+    inFile.read(reinterpret_cast<char*>(&tempLevelNumber), sizeof(tempLevelNumber));
+
+    inFile.close();
+
+    // Return the temporary level number
+    return tempLevelNumber;
 }
 
 
