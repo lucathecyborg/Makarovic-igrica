@@ -151,7 +151,7 @@ int main(int argc, char *args[])
         bool moveUp = false, moveDown = false, moveLeft = false, moveRight = false;
         int tempCount=level_counter;
         bool input = inputHandling(event, gameRunning, levels[level_counter].getPlayer(), player_Walking_Forward, player_Walking_Backward, punch, window, moveUp, moveDown, moveLeft, moveRight, levels, level_counter);
-        std::cout<<tempCount<<"  "<<level_counter<<std::endl;
+        
         if(tempCount!=level_counter)
                 goto setup;
     
@@ -321,7 +321,6 @@ int main(int argc, char *args[])
                 else
                 {
                     setup:
-                    std::cout << "Level: " << level_counter << std::endl;
                     playersetup1 = playerSetup(player, levels[level_counter].getTex(), window, levels[level_counter].getSrcRect(), player_Walking_Backward, levels[level_counter], modifier);
                     player.setTex(player_Walking_Forward[0]);
                     player.Move(960, 540);

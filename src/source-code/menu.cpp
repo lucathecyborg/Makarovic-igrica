@@ -63,7 +63,6 @@ int menu(Render &window, Level levels[], int &levelNumber) { // Pass levelNumber
 // Load logic
                     else if (SDL_HasIntersection(&mouseRect, loadButon.getHitbox()))
                     {   levelNumber=levels[levelNumber].numberCheck()-1;
-                        std::cout<<levelNumber<<std::endl;
                         levels[levelNumber].loadFromFile(names[levelNumber], window);
                        // Exit the menu after loading
                     }
