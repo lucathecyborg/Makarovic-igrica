@@ -14,29 +14,12 @@
 #include "levels.hpp"
 
 
-struct ClueData {
-    float x, y;
-    float prevX, prevY;
-    bool alive;
-    bool solved;
-};
 
-struct EntityData {
-    float x, y;
-    float prevX, prevY;
-    bool alive;
-};
 
-struct SDLRectData {
-    int x, y, w, h;
-};
 
-struct LevelData {
-    int levelNumber;
-    SDLRectData srcRect;
-    SDLRectData gateRectOpen;
-    SDLRectData gateRectClosed;
-};
+
+
+
 
 Player Level::player1 = Player();
 
@@ -412,74 +395,64 @@ vector<Clue>& Level::getClues()
     return clues;
 }
 
-void Level::loadFromFile(const std::string& filename, Render &window) {
+int Level::loadFromFile(const std::string& filename, Render &window) {
+    SDL_Texture* skins[3];
+    skins[0] = window.loadTexture("src/res/gfx/ppl_textures/desert enemy/idle.png");
+    skins[1] = window.loadTexture("src/res/gfx/ppl_textures/forest enemy/idle.png");
+    skins[2] = window.loadTexture("src/res/gfx/ppl_textures/city enemy/idle.png");
+
     std::ifstream inFile("level.bin", std::ios::binary);
     if (!inFile) {
         std::cerr << "Error opening file for reading!" << std::endl;
-        return;
+        return -1;
     }
 
-    // 🔹 Load Level Number
+    // Read the level number
     inFile.read(reinterpret_cast<char*>(&levelNumber), sizeof(levelNumber));
 
-    // 🔹 Load srcRect
-    inFile.read(reinterpret_cast<char*>(&srcRect), sizeof(SDL_Rect));
-
-    // 🔹 Load Gate Rects
-    inFile.read(reinterpret_cast<char*>(&gateRectOpen), sizeof(SDL_Rect));
-    inFile.read(reinterpret_cast<char*>(&gateRectClosed), sizeof(SDL_Rect));
-
-    // 🔹 Load Clues
+    // Read clue states
     size_t clueSize;
     inFile.read(reinterpret_cast<char*>(&clueSize), sizeof(clueSize));
-    clues.clear();
-    for (size_t i = 0; i < clueSize; i++) {
-        ClueData clueData;
-        inFile.read(reinterpret_cast<char*>(&clueData), sizeof(ClueData));
 
-        Clue clue;
-        clue.Move(clueData.x, clueData.y);
-        clue.setAlive(clueData.alive);
-        clues.push_back(clue);
+    std::vector<uint8_t> clueData(clueSize);
+    inFile.read(reinterpret_cast<char*>(clueData.data()), clueSize);
+
+    std::vector<bool> clueStates(clueSize);
+    for (size_t i = 0; i < clueSize; i++) {
+        clueStates[i] = (clueData[i] != 0); // Convert byte to bool
     }
 
-    // 🔹 Load Enemies
+    // Read enemy alive states
     size_t enemySize;
     inFile.read(reinterpret_cast<char*>(&enemySize), sizeof(enemySize));
-    enemies.clear();
+
+    std::vector<uint8_t> enemyData(enemySize);
+    inFile.read(reinterpret_cast<char*>(enemyData.data()), enemySize);
+
+    std::vector<bool> enemyStates(enemySize);
     for (size_t i = 0; i < enemySize; i++) {
-        EntityData enemyData;
-        inFile.read(reinterpret_cast<char*>(&enemyData), sizeof(EntityData));
-
-        Entity enemy;
-        enemy.Move(enemyData.x, enemyData.y);
-        enemy.setAlive(enemyData.alive);
-        enemies.push_back(enemy);
+        enemyStates[i] = (enemyData[i] != 0); // Convert byte to bool
     }
 
-    // 🔹 Load Walls
-    size_t wallSize;
-    inFile.read(reinterpret_cast<char*>(&wallSize), sizeof(wallSize));
-    walls.clear();
-    for (size_t i = 0; i < wallSize; i++) {
-        SDL_Rect wall;
-        inFile.read(reinterpret_cast<char*>(&wall), sizeof(SDL_Rect));
-        walls.push_back(wall);
-    }
-
-    // 🔹 Load Death Barriers
-    size_t deathBarrierSize;
-    inFile.read(reinterpret_cast<char*>(&deathBarrierSize), sizeof(deathBarrierSize));
-    deathBarriers.clear();
-    for (size_t i = 0; i < deathBarrierSize; i++) {
-        SDL_Rect barrier;
-        inFile.read(reinterpret_cast<char*>(&barrier), sizeof(SDL_Rect));
-        deathBarriers.push_back(barrier);
-    }
+    // Read player health
+    int helt;
+    inFile.read(reinterpret_cast<char*>(&helt), sizeof(helt));
+    player1.setHealth(helt);
 
     inFile.close();
-    std::cout << "Level loaded successfully!" << std::endl;
+
+    // Apply loaded data
+    for (size_t i = 0; i < clues.size() && i < clueStates.size(); i++) {
+        clues[i].setAlive(clueStates[i]);
+    }
+
+    for (size_t i = 0; i < enemies.size() && i < enemyStates.size(); i++) {
+        enemies[i].setAlive(enemyStates[i]);
+    }
+
+    return levelNumber;
 }
+
 
 
 
@@ -492,45 +465,40 @@ void Level::saveToFile(const std::string& filename) {
         return;
     }
 
-    // 🔹 Save Level Number
+    // Save the level number
     outFile.write(reinterpret_cast<const char*>(&levelNumber), sizeof(levelNumber));
 
-    // 🔹 Save srcRect
-    outFile.write(reinterpret_cast<const char*>(&srcRect), sizeof(SDL_Rect));
-
-    // 🔹 Save Gate Rects
-    outFile.write(reinterpret_cast<const char*>(&gateRectOpen), sizeof(SDL_Rect));
-    outFile.write(reinterpret_cast<const char*>(&gateRectClosed), sizeof(SDL_Rect));
-
-    // 🔹 Save Clues
-    size_t clueSize = clues.size();
+    // Save the clue data
+    std::vector<bool> clueStates;
+    for (size_t i = 0; i < clues.size(); i++) {
+        clueStates.push_back(clues[i].Alive());
+    }
+    size_t clueSize = clueStates.size();
     outFile.write(reinterpret_cast<const char*>(&clueSize), sizeof(clueSize));
-    for (auto& clue : clues) {  // Removed `const auto&` to ensure you can call non-const methods
-        ClueData clueData = {clue.getX(), clue.getY(), clue.getPrevX(), clue.getPrevY(), clue.Alive(), clue.getSolved()};
-        outFile.write(reinterpret_cast<const char*>(&clueData), sizeof(ClueData));
-    }
 
-    // 🔹 Save Enemies
-    size_t enemySize = enemies.size();
+    std::vector<uint8_t> clueData(clueSize);
+    for (size_t i = 0; i < clueSize; i++) {
+        clueData[i] = clueStates[i] ? 1 : 0; // Convert bool to byte
+    }
+    outFile.write(reinterpret_cast<const char*>(clueData.data()), clueSize);
+
+    // Save the enemy alive states
+    std::vector<bool> enemyStates;
+    for (size_t i = 0; i < enemies.size(); i++) {
+        enemyStates.push_back(enemies[i].Alive());
+    }
+    size_t enemySize = enemyStates.size();
     outFile.write(reinterpret_cast<const char*>(&enemySize), sizeof(enemySize));
-    for (auto& enemy : enemies) {  // Removed `const auto&` to ensure you can call non-const methods
-        EntityData enemyData = {enemy.getX(), enemy.getY(), enemy.getPrevX(), enemy.getPrevY(), enemy.Alive()};
-        outFile.write(reinterpret_cast<const char*>(&enemyData), sizeof(EntityData));
-    }
 
-    // 🔹 Save Walls
-    size_t wallSize = walls.size();
-    outFile.write(reinterpret_cast<const char*>(&wallSize), sizeof(wallSize));
-    for (auto& wall : walls) {
-        outFile.write(reinterpret_cast<const char*>(&wall), sizeof(SDL_Rect));
+    std::vector<uint8_t> enemyData(enemySize);
+    for (size_t i = 0; i < enemySize; i++) {
+        enemyData[i] = enemyStates[i] ? 1 : 0; // Convert bool to byte
     }
+    outFile.write(reinterpret_cast<const char*>(enemyData.data()), enemySize);
 
-    // 🔹 Save Death Barriers
-    size_t deathBarrierSize = deathBarriers.size();
-    outFile.write(reinterpret_cast<const char*>(&deathBarrierSize), sizeof(deathBarrierSize));
-    for (auto& barrier : deathBarriers) {
-        outFile.write(reinterpret_cast<const char*>(&barrier), sizeof(SDL_Rect));
-    }
+    // Save player health
+    int helt = player1.getHealth();
+    outFile.write(reinterpret_cast<const char*>(&helt), sizeof(helt));
 
     outFile.close();
     std::cout << "Level saved successfully!" << std::endl;

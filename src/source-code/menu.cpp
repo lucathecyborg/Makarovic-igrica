@@ -63,7 +63,7 @@ bool menu(Render &window, Level levels[], int levelNumber){
 // Load logic
                         else if (SDL_HasIntersection(&mouseRect, loadButon.getHitbox()))
                         {
-                            levels[levelNumber].loadFromFile(names[levelNumber],window);
+                            levelNumber=levels[levelNumber].loadFromFile(names[levelNumber],window);
                         }
                 }
             }
