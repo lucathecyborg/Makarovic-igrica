@@ -505,6 +505,17 @@ void Level::saveToFile(const std::string& filename) {
 }
 
 
+int Level::numberCheck(){
+    std::ifstream inFile("level.bin", std::ios::binary);
+    if (!inFile) {
+        std::cerr << "Error opening file for reading!" << std::endl;
+        return -1;
+    }
 
+    // Read the level number
+    
+    inFile.read(reinterpret_cast<char*>(&levelNumber), sizeof(levelNumber));
+    return levelNumber;
+}
 
 

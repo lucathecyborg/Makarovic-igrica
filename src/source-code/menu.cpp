@@ -61,15 +61,18 @@ bool menu(Render &window, Level levels[], int levelNumber){
                     }
 
 // Load logic
-                        else if (SDL_HasIntersection(&mouseRect, loadButon.getHitbox()))
-                        {
-                            levelNumber=levels[levelNumber].loadFromFile(names[levelNumber],window);
-                        }
+                    else if (SDL_HasIntersection(&mouseRect, loadButon.getHitbox()))
+                    {
+                        levelNumber = levels[levelNumber].loadFromFile(names[levelNumber], window);
+                        menu = false; // Exit the menu after loading
+                    }
                 }
             }
             if (event.type == SDL_QUIT)
             {
+
                 menu = false;
+                Quit(window);
                 return false;
             }
             if (event.type == SDL_KEYUP)
@@ -84,7 +87,7 @@ bool menu(Render &window, Level levels[], int levelNumber){
         window.display();
     }
 
-    return true;
+    return levelNumber; // Return the updated levelNumber
 }
 
 bool credits(Render &window)
