@@ -25,7 +25,7 @@ int main(int argc, char *args[])
 
     Render window("Johnny Englishhh", 1920, 1080);
 
-    //JUST TRYING SHIT    
+    
 
     TTF_Font *font = TTF_OpenFont("src/res/dev/ROGFonts-Regular.otf", 24);
     SDL_Color textColor = {255, 0, 0, 200};

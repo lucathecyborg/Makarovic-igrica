@@ -57,13 +57,13 @@ bool menu(Render &window, Level levels[], int levelNumber){
                     }
                     else if (SDL_HasIntersection(&mouseRect, saveButon.getHitbox()))
                     {
-                
+                        levels[levelNumber].saveToFile(names[levelNumber]);
                     }
 
 // Load logic
                         else if (SDL_HasIntersection(&mouseRect, loadButon.getHitbox()))
                         {
-                     
+                            levels[levelNumber].loadFromFile(names[levelNumber],window);
                         }
                 }
             }
