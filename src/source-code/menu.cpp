@@ -115,6 +115,7 @@ int menu(Render &window, Level levels[], int &levelNumber) { // Pass levelNumber
         }
         
         window.display();
+        window.clear();
     }
 
     return levelNumber; // Return the updated levelNumber
@@ -161,8 +162,9 @@ void credits(Render &window)
                 credits = false;
             }
         }
-       
+      
         window.display();
+        window.clear();
     }
     
 }
@@ -232,6 +234,7 @@ void options(Render &window)
 
        
         window.display();
+        window.clear();
     }
     
 }
