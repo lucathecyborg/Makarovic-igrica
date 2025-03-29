@@ -58,7 +58,7 @@ int main(int argc, char *args[])
 
     SDL_Texture *gateClosed = window.loadTexture("src/res/dev/gate1.png");
     SDL_Texture *gateOpen = window.loadTexture("src/res/dev/gate1_open.png");
-    Level levels[3] = {Level(1, 4668, 2626, 1, 5, window, map1Tex, startup1, gateClosed, gateOpen), Level(2, 6966, 3918, 2, 10, window, map2Tex, startup2, gateClosed, gateOpen), Level(3, 9422, 5299, 3, 0, window, map3Tex, startup1, gateClosed, gateOpen)};
+    Level levels[3] = {Level(1, 4668, 2626, 1, 5, window, map1Tex, startup1, gateClosed, gateOpen), Level(2, 6966, 3918, 2, 10, window, map2Tex, startup2, gateClosed, gateOpen), Level(3, 9422, 5299, 3, 20, window, map3Tex, startup1, gateClosed, gateOpen)};
     levels[0].loadPlayer(player);
     int level_counter = 0;
     level_counter = menu(window, levels, level_counter); // Use the updated menu function
