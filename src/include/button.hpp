@@ -11,7 +11,7 @@ class Button {
     bool pressed = false;
 
 public:
-    Button(int x, int y, int w1, int h1);
+    Button(int x, int y, int w1, int h1, SDL_Texture *tex1);
     bool GetPressed();
     void setPressed(bool status);
     bool IsPressed();

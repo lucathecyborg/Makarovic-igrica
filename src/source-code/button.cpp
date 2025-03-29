@@ -9,7 +9,8 @@
 #include "button.hpp"
 
 
-Button::Button(int x, int y, int w1, int h1) {
+Button::Button(int x, int y, int w1, int h1, SDL_Texture *tex1) {
+    tex = tex1;
     hitbox = {x, y, w1, h1};
 }
 
